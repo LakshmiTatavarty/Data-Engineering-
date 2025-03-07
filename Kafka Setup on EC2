@@ -1,94 +1,88 @@
-# 🚀 Kafka Setup and Configuration Guide 🎯
+🚀 Kafka Setup and Configuration Guide 🎯
 
 ## 🔥 What is Kafka?
-Kafka is a **distributed event streaming platform** that allows you to **read, write, store, and process events**. It consists of **servers and clients** and can source data from **databases, sensors, mobile devices, cloud services, and software applications**. Kafka environments can be **self-managed** or utilize **fully managed services** from different vendors. 💡
+Kafka is a distributed event streaming platform that allows you to read, write, store, and process events.
+It consists of servers and clients and can source data from databases, sensors, mobile devices, cloud services, and software applications.
+Kafka environments can be self-managed or utilize fully managed services from different vendors. 💡
 
----
 
-## ⚙️ Setting Up Kafka on an AWS EC2 Instance
+⚙️ Setting Up Kafka on an AWS EC2 Instance
 
-### 🖥️ 1. Launching an EC2 Instance & Retrieving Credentials
+--------------------🖥️ 1. Launching an EC2 Instance & Retrieving Credentials---------------------------
 
-1. **Log in to AWS Console** and navigate to **EC2 Dashboard**.
-2. Click **Launch Instance**, choose an **Amazon Linux AMI**, and select an instance type (e.g., t2.micro for free tier).
-3. Configure instance details and **add storage** as needed.
-4. Under **Key Pair (login)**, create or select an existing **.pem key file** and download it.
-5. Launch the instance and note the **Public IPv4 Address** from the EC2 dashboard.
+1. Log in to AWS Console and navigate to EC2 Dashboard.
+2. Click Launch Instance, choose an Amazon Linux AMI, and select an instance type (e.g., t2.micro for free tier).
+3. Configure instance details and add storage as needed.
+4. Under Key Pair (login), create or select an existing .pem key file** and download it.
+5. Launch the instance and note the Public IPv4 Address from the EC2 dashboard.
 
-Navigate to the directory where your **EC2 key** is downloaded and connect to EC2 using SSH:
+Navigate to the directory where your EC2 key is downloaded and connect to EC2 using SSH:
 
 ```sh
 ssh -i '/path/to/your-key.pem' ec2-user@<EC2_PUBLIC_IP>
 ```
 
-### 🔧 2. Preparing Your EC2 Machine for Kafka
+-------------------🔧 2. Preparing Your EC2 Machine for Kafka------------------
 
-#### 📥 a. Download Kafka
+ 📥 a. Download Kafka
 ```sh
 wget https://archive.apache.org/dist/kafka/3.9.0/kafka_2.13-3.9.0.tgz
 ```
-
-#### 🛠️ b. Install Kafka
+ 🛠️ b. Install Kafka
 ```sh
 tar -xzf kafka_2.13-3.9.0.tgz
 cd kafka_2.13-3.9.0
 ```
-
-#### ☕ c. Install Java on EC2
+ ☕ c. Install Java on EC2
 ```sh
 sudo yum install java
 java -version
 ```
-
-#### 🔼 d. Increase Kafka Server Memory (For Single EC2 Instance)
+🔼 d. Increase Kafka Server Memory (For Single EC2 Instance)
 ```sh
 export KAFKA_HEAP_OPTS="-Xmx256M -Xms128M"
 ```
 
----
+-----------------🚀 Running Kafka---------------------------
 
-## 🚀 Running Kafka
-
-### 🦓 1. Start ZooKeeper
+🦓 1. Start ZooKeeper
 ```sh
 bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
-
-### ⚡ 2. Start Kafka Broker (In a new terminal)
+⚡ 2. Start Kafka Broker (In a new terminal)
 ```sh
 bin/kafka-server-start.sh config/server.properties
 ```
-
-### 🎯 3. Create a Kafka Topic
+ 🎯 3. Create a Kafka Topic
 ```sh
 bin/kafka-topics.sh --create --topic quickstart-events --bootstrap-server localhost:9092
 ```
 
----
+--------------------🔄 Configuring Kafka Connect---------------------------------
 
-## 🔄 Configuring Kafka Connect
 Kafka Connect allows transferring files between external systems and Kafka.
 
-### 🔧 1. Modify Configuration for Kafka Connect
+🔧 1. Modify Configuration for Kafka Connect
 ```sh
 echo "plugin.path=libs/connect-file-3.9.0.jar" >> config/connect-standalone.properties
 ```
 
-### 📂 2. Copy a File from Local Machine to EC2
-#### 📌 a. Create a Data Directory on EC2
+📂 2. Copy a File from Local Machine to EC2
+📌 a. Create a Data Directory on EC2
 ```sh
 mkdir data
 ```
 
-#### 📤 b. Use SCP to Transfer a File
+📤 b. Use SCP to Transfer a File
 ```sh
 scp -i '/path/to/your-key.pem' '/path/to/local/file.csv' ec2-user@<EC2_PUBLIC_IP>:data/
 ```
 
-### ✏️ 3. Update Kafka Connect Configuration Files
+-------------------------✏️ 3. Update Kafka Connect Configuration Files---------------------
+
 Edit the following files to specify the **source file being sent to the producer** and the **destination filename for consumption**:
 
-#### 📝 `config/connect-file-source.properties`
+📝 `config/connect-file-source.properties`
 ```properties
 name=file-source-connector
 connector.class=FileStreamSource
@@ -97,7 +91,7 @@ file=/path/to/source-file.csv
 topic=quickstart-events
 ```
 
-#### 📄 `config/connect-file-sink.properties`
+📄 `config/connect-file-sink.properties`
 ```properties
 name=file-sink-connector
 connector.class=FileStreamSink
@@ -106,20 +100,19 @@ topics=quickstart-events
 file=/path/to/output-file.csv
 ```
 
-### ▶️ 4. Start Kafka Connect in Standalone Mode
+----------------------------▶️ 4. Start Kafka Connect in Standalone Mode-------------------------
 ```sh
 bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties config/connect-file-sink.properties
 ```
 
-### 📊 5. Consume Messages from Kafka Topic
+----------------------------📊 5. Consume Messages from Kafka Topic-------------------------------
 ```sh
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic quickstart-events --from-beginning
 ```
 
----
 
-## 🎉 Conclusion
-This guide provides a **step-by-step approach** to setting up **Kafka on an AWS EC2 instance**, configuring Kafka Connect, and consuming messages from a Kafka topic. 🚀 It serves as a foundational setup for working with **event-driven architectures**.
+-----------------------------🎉 Conclusion----------------------------------------------------------
+This guide provides a step-by-step approach to setting up Kafka on an AWS EC2 instance, configuring Kafka Connect, and consuming messages from a Kafka topic. 🚀 It serves as a foundational setup for working with event-driven architectures.
 
 For more advanced configurations, refer to the 📖 [Apache Kafka Documentation](https://kafka.apache.org/documentation/).
 
