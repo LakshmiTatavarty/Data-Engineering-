@@ -1,0 +1,9 @@
+{
+	"name": "DataFactoryscenaroios",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8019759a-49c3-4de3-9b6e-5479f59ec421",
+		"tenantId": "df3741ce-4496-4d27-be4e-e9f9f72ba5a4"
+	}
+}
